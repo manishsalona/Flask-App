@@ -55,7 +55,7 @@ pipeline {
 cd ${DEPLOY_DIR}
 . venv/bin/activate
 pip install -r requirements.txt
-nohup python app.py > flaskapp.log 2>&1 &
+nohup python3 app.py > flaskapp.log 2>&1 &
 EOF
                         """
                     }
