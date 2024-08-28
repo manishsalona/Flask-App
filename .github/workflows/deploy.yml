@@ -1,49 +1,51 @@
-name: Build, Test, Deploy Flask App
+name: Build, Test, and Deploy Flask App
 
 on:
   push:
     branches:
-      - main 
+      - main  # Run the action when code is pushed to the main branch
 
 jobs:
-  build-test-deploy:
+  build:
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.8'  # or any other Python version
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-
-    - name: Run tests
-      run: |
-        # Add your test commands here
-        pytest
-
-    - name: Deploy to EC2
-      env:
-        EC2_HOST: ${{ secrets.EC2_HOST }}
-        EC2_USER: ${{ secrets.EC2_USER }}
-        EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
-        FLASK_APP_PATH: ${{ secrets.FLASK_APP_PATH }}
-      run: |
-        echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/id_rsa
-        chmod 600 /tmp/id_rsa
-        rsync -avz -e "ssh -i /tmp/id_rsa -o StrictHostKeyChecking=no" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.FLASK_APP_PATH }}
-        ssh -i /tmp/id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-          cd ${{ secrets.FLASK_APP_PATH }}
-          # Optional: Create a virtual environment
-          python -m venv venv
-          source venv/bin/activate
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
-          # Restart the Flask app (you might be using a process manager like Gunicorn or similar)
-          sudo systemctl restart your-flask-app.service
-        EOF
+
+      - name: Run tests
+        run: |
+          pytest
+
+      - name: Create SSH key file
+        run: echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/id_rsa
+
+      - name: Set permissions for SSH key
+        run: chmod 600 /tmp/id_rsa
+
+      - name: Deploy to EC2
+        env:
+          FLASK_APP_PATH: ${{ secrets.FLASK_APP_PATH }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+        run: |
+          rsync -avz -e "ssh -i /tmp/id_rsa -o StrictHostKeyChecking=no" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.FLASK_APP_PATH }}
+          ssh -i /tmp/id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
+            cd ${{ secrets.FLASK_APP_PATH }}
+            source venv/bin/activate
+            pip install -r requirements.txt
+            sudo systemctl restart your-flask-app.service
+          EOF
+
+      - name: Clean up SSH key
+        run: rm /tmp/id_rsa
