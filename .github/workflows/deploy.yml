@@ -27,21 +27,13 @@ jobs:
         run: |
           pytest
 
-      - name: Create SSH key file
-        run: sudo echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/id_rsa
-
-      - name: Set permissions for SSH key
-        run: sudo chmod 600 /tmp/id_rsa
-      - name: Verify SSH Key File
-        run:  cat /tmp/id_rsa
-
       - name: Deploy to EC2 
         env: 
           FLASK_APP_PATH: ${{ secrets.FLASK_APP_PATH }}
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
         run: |
-          rsync -avz -e "ssh -v -i /tmp/id_rsa -o StrictHostKeyChecking=no" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.FLASK_APP_PATH }}
+          rsync -avz -e "ssh -v -i /home/ubuntu/.ssh/id_ed25519 -o StrictHostKeyChecking=no" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.FLASK_APP_PATH }}
           ssh -i /tmp/id_rsa -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             cd ${{ secrets.FLASK_APP_PATH }}
             source venv/bin/activate
