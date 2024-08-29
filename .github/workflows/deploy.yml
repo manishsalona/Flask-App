@@ -28,8 +28,8 @@ jobs:
           pytest
       - name: Create SSH key file
         run: |
-          sudo echo "$EC2_SSH_KEY" > ssh-key
-          sudo chmod 600 ssh-key
+          sudo echo "$EC2_SSH_KEY" > /home/ansible/.ssh/ssh-key
+          sudo chmod 600 /home/ansible/.ssh/ssh-key
 
       - name: Deploy to EC2 
         env: 
