@@ -32,9 +32,9 @@ jobs:
           FLASK_APP_PATH: ${{ secrets.FLASK_APP_PATH }}
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
-          SSH_KEY: ${{ secrets.SSH_KEY}}
+          SSH_KEY: ${{ secrets.EC2_SSH_KEY}}
         run: |
-          echo "$SSH_KEY" > ssh-key && chmod 600 ssh-key
+          echo "$EC2_SSH_KEY" > ssh-key && chmod 600 ssh-key
           ssh -i ssh-key -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             cd ${{ secrets.FLASK_APP_PATH }}
             source venv/bin/activate
