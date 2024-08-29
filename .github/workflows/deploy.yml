@@ -32,6 +32,8 @@ jobs:
 
       - name: Set permissions for SSH key
         run: sudo chmod 600 /tmp/id_rsa
+      - name: Verify SSH Key File
+        run:  cat /tmp/id_rsa
 
       - name: Deploy to EC2 
         env: 
