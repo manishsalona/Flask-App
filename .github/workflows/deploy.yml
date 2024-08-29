@@ -26,6 +26,10 @@ jobs:
       - name: Run tests
         run: |
           pytest
+      - name: Create SSH key file
+        run: |
+          sudo echo "$EC2_SSH_KEY" > ssh-key
+          sudo chmod 600 ssh-key
 
       - name: Deploy to EC2 
         env: 
@@ -34,7 +38,7 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           SSH_KEY: ${{ secrets.EC2_SSH_KEY}}
         run: |
-          echo "$EC2_SSH_KEY" > ssh-key && chmod 600 ssh-key
+          rsync -avz -e "ssh -i ssh-key -o StrictHostKeyChecking=no" ./ ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:${{ secrets.FLASK_APP_PATH }}
           ssh -i ssh-key -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
             cd ${{ secrets.FLASK_APP_PATH }}
             source venv/bin/activate
