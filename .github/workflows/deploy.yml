@@ -28,10 +28,10 @@ jobs:
           pytest
 
       - name: Create SSH key file
-        run: echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/id_rsa
+        run: sudo echo "${{ secrets.EC2_SSH_KEY }}" > /tmp/id_rsa
 
       - name: Set permissions for SSH key
-        run: chmod 600 /tmp/id_rsa
+        run: sudo chmod 600 /tmp/id_rsa
 
       - name: Deploy to EC2 
         env: 
