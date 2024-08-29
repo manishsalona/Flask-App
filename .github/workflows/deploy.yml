@@ -33,8 +33,8 @@ jobs:
       - name: Set permissions for SSH key
         run: chmod 600 /tmp/id_rsa
 
-      - name: Deploy to EC2
-        env:
+      - name: Deploy to EC2 
+        env: 
           FLASK_APP_PATH: ${{ secrets.FLASK_APP_PATH }}
           EC2_USER: ${{ secrets.EC2_USER }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
